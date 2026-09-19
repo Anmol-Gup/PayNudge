@@ -1,18 +1,68 @@
 # PayNudge
 
 Track invoices you've already sent to clients and automatically send escalating,
-polite payment reminder emails — with a Stripe payment link — until they're paid.
+polite payment reminder emails — with whatever payment method you actually
+accept — until they're paid.
 
 This is **not** a full invoicing/accounting app. You invoice clients however you
-already do (Stripe, PayPal, a PDF); PayNudge only tracks due dates, payment
-status, and automates the follow-up chasing.
+already do (Stripe, UPI, a bank transfer, a PDF); PayNudge only tracks due
+dates, payment status, and automates the follow-up chasing.
+
+## Features
+
+- **Invoices** — create invoices against a client with an amount, currency,
+  due date, and description. Statuses: `draft`, `sent`, `overdue`,
+  `partially_paid`, `paid`, `void`. Draft invoices never get reminders until
+  marked as sent.
+- **Clients** — a simple client list (name + email) shared across invoices.
+- **Automated reminders** — a default reminder sequence per account with one
+  optional *pre-due* "heads up" email and up to three *post-due* escalating
+  steps (tones: polite, firm, final), each with its own configurable day
+  offset, subject, and body. Templates support variables like
+  `{{client_name}}`, `{{invoice_number}}`, `{{amount}}`, `{{amount_due}}`
+  (reflects any partial payments already received), `{{due_date}}`,
+  `{{payment_link}}`, `{{days_overdue}}`, `{{upi_id}}`, and `{{bank_details}}`,
+  with a live preview while editing.
+- **Reminder controls per invoice** — pause/resume reminders, or send the
+  next one immediately ("Send reminder now") ahead of schedule. Both are
+  automatically hidden once every step in the sequence has already been sent.
+- **Multiple payment methods, shown together** — Stripe, UPI, bank transfer,
+  and/or an uploaded QR code can all be enabled at once, either as an
+  account-wide default (Payment settings) or overridden per invoice. Every
+  enabled method that has data renders its own block in the reminder email
+  (Stripe gets a "Pay this invoice" button; UPI/bank/QR show the info needed
+  to pay manually). No method is ever assumed by default — an invoice with
+  nothing configured just sends a reminder with no payment block.
+- **Partial payments** — record one or more payments against an invoice
+  (amount, method, note); the invoice status derives from the running total
+  (`partially_paid` vs `paid`), and reminder emails always quote the
+  remaining balance, not the original total.
+- **Stripe payments without giving PayNudge a key** — each user pastes in
+  their *own* Stripe Payment Link (created directly in their Stripe
+  dashboard) rather than PayNudge creating one on their behalf, so client
+  money always lands directly in their own account.
+- **Per-user Stripe webhook** — each account gets its own webhook URL
+  (`.../stripe-webhook?uid=<user id>`) and signing secret, so payment
+  confirmation works independently of whose Stripe account a link belongs to.
+- **Dashboard** — outstanding/overdue/due-soon/paid-this-month totals and a
+  recent-invoices list, with a time-of-day greeting.
+- **Billing** — plan display (Free/Pro/Agency) and a Stripe Customer Portal
+  link for managing an existing subscription. Currently in beta: everyone is
+  on the free plan and paid checkout isn't wired up yet (portal management
+  works for any subscription created out of band).
+- **Auth** — email/password signup and login via Supabase Auth, with
+  duplicate-email detection on signup, forgot/reset password flows, and
+  already-signed-in users redirected straight to the dashboard instead of
+  seeing the login/signup forms again.
 
 ## Stack
 
 - Frontend: React + TypeScript + Tailwind + Vite
-- Backend/DB/Auth: Supabase (Postgres, Auth, Edge Functions)
+- Backend/DB/Auth: Supabase (Postgres, Auth, Edge Functions, Storage)
 - Email: Nodemailer (any SMTP provider)
-- Payments: Stripe (Payment Links for client invoices, Billing Portal for PayNudge's own subscription plans)
+- Payments: client-provided Stripe Payment Links / UPI / bank transfer / QR
+  code for invoices, Stripe Billing Portal for PayNudge's own subscription
+  plans
 
 ## Local setup
 
@@ -36,23 +86,50 @@ The frontend alone won't do much until it's pointed at a real Supabase project �
    ```bash
    npx supabase db push
    ```
-   This creates all tables, enables RLS, and installs the triggers that seed a
-   default reminder sequence + free subscription for every new user, plus the
-   free-plan invoice-limit enforcement trigger.
-4. Enable Google as an auth provider (Authentication → Providers) if you want
-   the "Continue with Google" button to work.
+   This creates all tables, enables RLS, and installs the trigger that seeds
+   a default reminder sequence + free subscription for every new user.
+4. Create the `payment-qr-codes` storage bucket (public read) if it isn't
+   created automatically by the migrations — used for uploaded payment QR
+   codes.
+
+## Payment methods
+
+Each account configures its own payment methods in **Payment settings**
+(account-wide defaults) and can override them per invoice:
+
+- **Stripe** — paste a Payment Link created in your own Stripe dashboard.
+  PayNudge tags each invoice's copy of the link with
+  `?client_reference_id=<invoice id>` so payment status tracks back to the
+  right invoice even if the same link is reused across several invoices.
+- **UPI** — a UPI ID shown to the client to pay you directly.
+- **Bank transfer** — account name, bank name, account number (6–18 digits),
+  and IFSC/SWIFT code (validated against real IFSC/BIC formats).
+- **QR code** — an uploaded image the client scans to pay.
+
+UPI, bank transfer, and QR have no automatic payment confirmation — mark the
+invoice paid (or record a partial payment) yourself once you receive it. Only
+Stripe payments are confirmed automatically, via the webhook below.
 
 ## Stripe setup
 
-1. Create a Stripe account (test mode is fine to start).
-2. Copy your secret key into `STRIPE_SECRET_KEY`.
-3. Create a webhook endpoint in the Stripe dashboard pointing at:
-   `https://<project-ref>.supabase.co/functions/v1/stripe-webhook`
-   Subscribe it to `checkout.session.completed`. Copy the signing secret into
-   `STRIPE_WEBHOOK_SECRET`.
-4. Set up your Pro/Agency products and prices, and enable the
-   [Customer Portal](https://dashboard.stripe.com/settings/billing/portal) so
-   `create-portal-session` can hand out portal links.
+Stripe is used for two unrelated things:
+
+1. **Client payments (per user, no key needed from them)** — each user
+   creates their own Payment Link in their own Stripe dashboard and pastes
+   the URL into PayNudge. No `STRIPE_SECRET_KEY` is needed for this — see
+   `supabase/functions/stripe-webhook`.
+2. **PayNudge's own subscription billing** — needs a real Stripe account for
+   the app itself:
+   - Copy your secret key into `STRIPE_SECRET_KEY` (only used by
+     `create-portal-session`).
+   - Enable the
+     [Customer Portal](https://dashboard.stripe.com/settings/billing/portal)
+     so `create-portal-session` can hand out portal links.
+
+For each user's own client-payment webhook, they paste their Stripe webhook
+signing secret into Payment settings; PayNudge stores it per account and
+verifies signatures against the right one using the `uid` in their webhook
+URL. There's no global `STRIPE_WEBHOOK_SECRET` for this path.
 
 ## SMTP setup (Nodemailer)
 
@@ -84,15 +161,13 @@ dashboard:
    production.
 
 The app already handles the frontend side of this: `/forgot-password` and
-`/reset-password` pages, a "Resend confirmation email" link if someone logs
-in before confirming, and password-visibility toggles on every password
+`/reset-password` pages, and password-visibility toggles on every password
 field.
 
 ## Deploying edge functions + secrets
 
 ```bash
 npx supabase secrets set --env-file supabase/.env
-npx supabase functions deploy create-payment-link
 npx supabase functions deploy send-reminders
 npx supabase functions deploy stripe-webhook
 npx supabase functions deploy create-portal-session
@@ -128,7 +203,8 @@ path). Two ways to schedule it:
 The "Send reminder now" button on an invoice's detail page calls the same
 function with `{ invoice_id }` in the body, authenticated as the signed-in
 user (bypassing the day-offset gate, but still enforcing that the invoice
-belongs to them).
+belongs to them, and still refusing to send if reminders are paused for that
+invoice).
 
 ## What's intentionally out of scope for v1
 
@@ -137,3 +213,5 @@ belongs to them).
 - Team/multi-user accounts (Agency tier — later)
 - SMS/WhatsApp reminders
 - Recurring/subscription invoices
+- Paid-plan checkout (Billing currently only manages an existing subscription
+  via the Stripe Customer Portal; upgrading from Free isn't wired up yet)
