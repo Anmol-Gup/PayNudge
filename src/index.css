@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+* {
+  @apply border-slate-200;
+}
+
+::selection {
+  @apply bg-brand-100 text-brand-900;
+}

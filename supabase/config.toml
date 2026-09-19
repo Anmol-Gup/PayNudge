@@ -1,0 +1,36 @@
+project_id = "paynudge"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+
+[db]
+port = 54322
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = [
+  "http://localhost:5173",
+  "http://localhost:5173/dashboard",
+  "http://localhost:5173/reset-password",
+]
+
+[auth.external.google]
+enabled = false
+client_id = ""
+secret = ""
+
+[functions.create-payment-link]
+verify_jwt = true
+
+[functions.send-reminders]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.create-portal-session]
+verify_jwt = true

@@ -1,0 +1,69 @@
+<!--
+  PREVIEW ONLY — do not paste this into the Supabase dashboard.
+
+  Reminder emails aren't a fixed template like the auth emails; they're built
+  at send time by buildReminderEmailHtml() in
+  supabase/functions/send-reminders/index.ts, wrapping whatever subject/body
+  text the user configured in Reminder Settings for that step. This file is
+  just a static snapshot of what that output looks like for the seeded
+  "1 day overdue / polite" step, so changes to the wrapper can be reviewed
+  without deploying first.
+-->
+<body style="margin:0;padding:0;background-color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8fafc;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background-color:#ffffff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+          <tr>
+            <td style="padding:32px 32px 0 32px;">
+              <table role="presentation" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background-color:#3b52c4;width:28px;height:28px;border-radius:8px;text-align:center;vertical-align:middle;">
+                    <span style="color:#ffffff;font-size:14px;font-weight:700;line-height:28px;">P</span>
+                  </td>
+                  <td style="padding-left:8px;font-size:16px;font-weight:700;color:#0f172a;">PayNudge</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 32px 8px 32px;">
+              <h1 style="margin:0;font-size:18px;line-height:26px;font-weight:700;color:#0f172a;">
+                Reminder: invoice #INV-1042 is now due
+              </h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:12px 32px 8px 32px;">
+              <p style="margin:0 0 14px 0;font-size:14px;line-height:22px;color:#334155;">
+                Hi Acme Corporation, just a friendly reminder that invoice #INV-1042 for $500.00 was due
+                on 9/10/2026. You can pay here:
+                <a href="https://pay.stripe.com/abc123" style="color:#3b52c4;">https://pay.stripe.com/abc123</a>
+              </p>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:8px;">
+                <tr>
+                  <td style="background-color:#3b52c4;border-radius:8px;">
+                    <a href="https://pay.stripe.com/abc123" style="display:inline-block;padding:12px 24px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">
+                      Pay this invoice
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 32px 32px 32px;border-top:1px solid #f1f5f9;">
+              <p style="margin:20px 0 0 0;font-size:12px;line-height:18px;color:#94a3b8;">
+                This is an automated payment reminder sent on behalf of the person or business you were
+                invoiced by.
+              </p>
+            </td>
+          </tr>
+        </table>
+        <p style="margin:20px 0 0 0;font-size:12px;color:#94a3b8;">
+          Sent via PayNudge
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>

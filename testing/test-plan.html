@@ -1,0 +1,865 @@
+<title>PayNudge Test Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #f6f7fb;
+    --surface: #ffffff;
+    --surface-2: #eef0f7;
+    --border: #e1e4ee;
+    --text: #1b2033;
+    --text-2: #5b6178;
+    --text-3: #8790a6;
+    --accent: #3f55c4;
+    --accent-tint: #eef1fd;
+    --success: #16855c;
+    --success-bg: #e6f6ee;
+    --warning: #b5720f;
+    --warning-bg: #fbf1e0;
+    --font-display: 'Archivo', system-ui, sans-serif;
+    --font-body: 'Public Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10121b;
+      --surface: #171a26;
+      --surface-2: #1f2333;
+      --border: #2a2e42;
+      --text: #e7e9f4;
+      --text-2: #a3a8c0;
+      --text-3: #6d7390;
+      --accent: #8b9bf5;
+      --accent-tint: #232a4d;
+      --success: #3fcf8e;
+      --success-bg: #16302a;
+      --warning: #e0a94a;
+      --warning-bg: #332508;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #10121b;
+    --surface: #171a26;
+    --surface-2: #1f2333;
+    --border: #2a2e42;
+    --text: #e7e9f4;
+    --text-2: #a3a8c0;
+    --text-3: #6d7390;
+    --accent: #8b9bf5;
+    --accent-tint: #232a4d;
+    --success: #3fcf8e;
+    --success-bg: #16302a;
+    --warning: #e0a94a;
+    --warning-bg: #332508;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 32px 80px;
+  }
+
+  header.top {
+    margin-bottom: 28px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(26px, 4vw, 34px);
+    letter-spacing: -0.01em;
+    margin: 6px 0 8px;
+    text-wrap: balance;
+  }
+
+  .subtitle {
+    color: var(--text-2);
+    max-width: 62ch;
+    font-size: 14.5px;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin-top: 14px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--text-3);
+  }
+
+  .meta-row code {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+  }
+
+  .progress-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .progress-numbers {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .progress-numbers span {
+    color: var(--text-3);
+    font-weight: 500;
+    font-size: 14px;
+    font-family: var(--font-body);
+  }
+
+  .progress-track {
+    flex: 1 1 220px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    overflow: hidden;
+    min-width: 160px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+    width: 0%;
+    transition: width 0.25s ease;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13.5px;
+    color: var(--text-2);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  button.reset-btn {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-2);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 12px;
+    cursor: pointer;
+  }
+  button.reset-btn:hover { color: var(--text); border-color: var(--text-3); }
+  button.reset-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 32px;
+    margin-top: 30px;
+    align-items: start;
+  }
+
+  nav.toc {
+    position: sticky;
+    top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  nav.toc a {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    text-decoration: none;
+    color: var(--text-2);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  nav.toc a:hover { background: var(--surface-2); color: var(--text); }
+  nav.toc a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  nav.toc .toc-count {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  main { min-width: 0; }
+
+  section.group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 20px;
+    scroll-margin-top: 20px;
+    overflow: hidden;
+  }
+
+  .group-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .group-num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-3);
+    background: var(--surface-2);
+    border-radius: 5px;
+    padding: 2px 7px;
+  }
+
+  .group-head h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16.5px;
+    margin: 0;
+    flex: 1;
+  }
+
+  .group-progress {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  ul.items { list-style: none; margin: 0; padding: 0; }
+
+  .item {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 12px;
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .item:last-child { border-bottom: none; }
+
+  .hide-done .item.done { display: none; }
+
+  .item input[type="checkbox"] {
+    margin-top: 3px;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .item label {
+    cursor: pointer;
+  }
+
+  .item-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+
+  .item-id {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--accent-tint);
+    border-radius: 4px;
+    padding: 1px 6px;
+    letter-spacing: 0.02em;
+  }
+
+  .item-action {
+    font-weight: 500;
+    color: var(--text);
+    font-size: 14px;
+  }
+
+  .item.done .item-action {
+    color: var(--text-3);
+    text-decoration: line-through;
+    text-decoration-color: var(--border);
+  }
+
+  .item-note {
+    color: var(--text-2);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .item-note code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--surface-2);
+    border-radius: 4px;
+    padding: 0 5px;
+    color: var(--text-2);
+  }
+
+  .section-note {
+    padding: 14px 20px;
+    color: var(--text-2);
+    font-size: 13.5px;
+    line-height: 1.6;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-note:last-child { border-bottom: none; }
+  .section-note strong { color: var(--text); font-weight: 600; }
+
+  .table-block { padding: 4px 20px 20px; }
+
+  .table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px 4px;
+  }
+  .table-toolbar h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .table-scroll { overflow-x: auto; }
+
+  table.data {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  table.data th {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-3);
+    font-weight: 500;
+    text-align: left;
+    padding: 6px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  table.data td {
+    padding: 7px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  table.data tr:last-child td { border-bottom: none; }
+  table.data td.mono, table.data th.mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-2);
+  }
+  table.data td.wrap { white-space: normal; }
+
+  .end-state {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 5px;
+    padding: 2px 7px;
+    font-size: 11.5px;
+    font-weight: 500;
+  }
+  .end-state.paid { background: var(--success-bg); color: var(--success); }
+  .end-state.void { background: var(--surface-2); color: var(--text-3); }
+  .end-state.overdue { background: var(--warning-bg); color: var(--warning); }
+  .end-state.sent { background: var(--accent-tint); color: var(--accent); }
+  .end-state.draft { background: var(--surface-2); color: var(--text-3); }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; gap: 18px; }
+    nav.toc {
+      position: static;
+      flex-direction: row;
+      overflow-x: auto;
+      gap: 6px;
+      padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch;
+    }
+    nav.toc a {
+      flex-direction: column;
+      align-items: flex-start;
+      white-space: nowrap;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .controls { margin-left: 0; }
+  }
+</style>
+
+<div class="shell">
+  <header class="top">
+    <div class="eyebrow">Manual QA · Beta</div>
+    <h1>PayNudge Test Plan</h1>
+    <p class="subtitle">
+      A full pass over every user-facing flow and backend job before (and after) each round of beta
+      invites. Checks persist in this browser only — re-run the whole thing after any deploy that
+      touches auth, the reminder engine, or Stripe.
+    </p>
+    <div class="meta-row">
+      <span>Frontend: <code>localhost:5173</code></span>
+      <span>Project: <code>wedwxdhualgncupldqkj</code></span>
+      <span>Cron header: <code>x-cron-secret</code></span>
+      <span>Test card: <code>4242 4242 4242 4242</code></span>
+    </div>
+
+    <div class="progress-card">
+      <div class="progress-numbers" id="overall-count">0<span> / 0 checks</span></div>
+      <div class="progress-track"><div class="progress-fill" id="overall-fill"></div></div>
+      <div class="controls">
+        <label class="toggle-label">
+          <input type="checkbox" id="hide-done" />
+          Hide passed
+        </label>
+        <button class="reset-btn" id="reset-btn" type="button">Reset all</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" id="toc" aria-label="Sections">
+      <a href="#sample-data"><span>Sample data</span><span class="toc-count">12+12</span></a>
+    </nav>
+    <main id="main">
+      <section class="group" id="sample-data">
+        <div class="group-head">
+          <span class="group-num">00</span>
+          <h2>Sample data</h2>
+        </div>
+        <div class="section-note">
+          Enter <strong>#1–#5</strong> by hand through the actual Add Client / New Invoice forms —
+          that also exercises those forms as part of the plan. Mark #4 and #5 Paid/Void
+          <em>before</em> creating #6 onward: the Free plan caps you at 3 active (Draft/Sent/Overdue)
+          invoices at once, and Paid/Void don't count against it — this order walks you into and back
+          out of that limit naturally (<span class="item-id" style="font-size:10.5px;">INV-03</span>).
+          Due dates below are computed relative to today, so this stays accurate whenever you open it.
+        </div>
+
+        <div class="table-toolbar">
+          <h3>Clients</h3>
+          <button class="reset-btn" data-copy="clients-table">Copy as CSV</button>
+        </div>
+        <div class="table-block">
+          <div class="table-scroll">
+            <table class="data" id="clients-table">
+              <thead>
+                <tr><th>First name</th><th>Last name</th><th>Email</th></tr>
+              </thead>
+              <tbody id="clients-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="table-toolbar">
+          <h3>Invoices</h3>
+          <button class="reset-btn" data-copy="invoices-table">Copy as CSV</button>
+        </div>
+        <div class="table-block">
+          <div class="table-scroll">
+            <table class="data" id="invoices-table">
+              <thead>
+                <tr>
+                  <th>#</th><th class="mono">Invoice #</th><th>Client</th><th>Description</th><th class="mono">Amount</th>
+                  <th>Currency</th><th class="mono">Due date</th><th>End state</th>
+                </tr>
+              </thead>
+              <tbody id="invoices-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+  const CLIENTS = [
+    ['Aarav', 'Sharma', 'aarav.sharma@example.com'],
+    ['Meera', 'Iyer', 'meera.iyer@example.com'],
+    ['Rohan', 'Mehta', 'rohan.mehta@example.com'],
+    ['Priya', 'Nair', 'priya.nair@example.com'],
+    ['Karan', 'Malhotra', 'karan.malhotra@example.com'],
+    ['Ananya', 'Rao', 'ananya.rao@example.com'],
+    ['Vikram', 'Joshi', 'vikram.joshi@example.com'],
+    ['Sneha', 'Kapoor', 'sneha.kapoor@example.com'],
+    ['Arjun', 'Desai', 'arjun.desai@example.com'],
+    ['Divya', 'Menon', 'divya.menon@example.com'],
+    ['Rahul', 'Verma', 'rahul.verma@example.com'],
+    ['Ishita', 'Bose', 'ishita.bose@example.com'],
+  ];
+
+  // dueOffsetDays: whole days from today (negative = overdue, 0 = due today)
+  const INVOICES = [
+    { number: 'INV-1031', client: 'Aarav Sharma', desc: 'Website redesign — phase 1', amount: 45000, currency: 'INR', dueOffsetDays: -15, end: 'overdue' },
+    { number: 'INV-1032', client: 'Meera Iyer', desc: 'Logo + brand kit', amount: 18000, currency: 'INR', dueOffsetDays: -8, end: 'overdue' },
+    { number: 'INV-1033', client: 'Rohan Mehta', desc: 'Monthly retainer — Sept', amount: 600, currency: 'USD', dueOffsetDays: -1, end: 'overdue' },
+    { number: 'INV-1034', client: 'Priya Nair', desc: 'Landing page copy', amount: 12000, currency: 'INR', dueOffsetDays: 0, end: 'paid' },
+    { number: 'INV-1035', client: 'Karan Malhotra', desc: 'SEO audit', amount: 250, currency: 'USD', dueOffsetDays: 3, end: 'void' },
+    { number: 'INV-1036', client: 'Ananya Rao', desc: 'App icon set', amount: 8000, currency: 'INR', dueOffsetDays: 10, end: 'sent' },
+    { number: 'INV-1037', client: 'Vikram Joshi', desc: 'Consulting — 5 hrs', amount: 15000, currency: 'INR', dueOffsetDays: 30, end: 'draft' },
+    { number: 'INV-1038', client: 'Sneha Kapoor', desc: 'Social media graphics', amount: 5000, currency: 'INR', dueOffsetDays: -6, end: 'paid' },
+    { number: 'INV-1039', client: 'Arjun Desai', desc: 'Product photography', amount: 20000, currency: 'INR', dueOffsetDays: -11, end: 'void' },
+    { number: 'INV-1040', client: 'Divya Menon', desc: 'Newsletter template', amount: 300, currency: 'USD', dueOffsetDays: 4, end: 'paid' },
+    { number: 'INV-1041', client: 'Rahul Verma', desc: 'Onboarding flow UX', amount: 32000, currency: 'INR', dueOffsetDays: -14, end: 'void' },
+    { number: 'INV-1042', client: 'Ishita Bose', desc: 'API integration', amount: 400, currency: 'USD', dueOffsetDays: 9, end: 'sent' },
+  ];
+
+  function formatDueDate(offsetDays) {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + offsetDays);
+    const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    if (offsetDays < 0) return dateStr + ' (' + Math.abs(offsetDays) + ' day' + (offsetDays === -1 ? '' : 's') + ' overdue)';
+    if (offsetDays === 0) return dateStr + ' (due today)';
+    return dateStr + ' (in ' + offsetDays + ' day' + (offsetDays === 1 ? '' : 's') + ')';
+  }
+
+  function formatAmount(amount, currency) {
+    try {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
+    } catch {
+      return currency + ' ' + amount;
+    }
+  }
+
+  const clientsTbody = document.getElementById('clients-tbody');
+  CLIENTS.forEach(([first, last, email]) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + first + '</td><td>' + last + '</td><td class="mono">' + email + '</td>';
+    clientsTbody.appendChild(tr);
+  });
+
+  const invoicesTbody = document.getElementById('invoices-tbody');
+  INVOICES.forEach((inv, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="mono">' + (i + 1) + '</td>' +
+      '<td class="mono">' + inv.number + '</td>' +
+      '<td>' + inv.client + '</td>' +
+      '<td class="wrap">' + inv.desc + '</td>' +
+      '<td class="mono">' + formatAmount(inv.amount, inv.currency) + '</td>' +
+      '<td class="mono">' + inv.currency + '</td>' +
+      '<td class="mono">' + formatDueDate(inv.dueOffsetDays) + '</td>' +
+      '<td><span class="end-state ' + inv.end + '">' + inv.end + '</span></td>';
+    invoicesTbody.appendChild(tr);
+  });
+
+  function tableToCsv(tableId) {
+    const table = document.getElementById(tableId);
+    const rows = Array.from(table.querySelectorAll('tr'));
+    return rows
+      .map((row) =>
+        Array.from(row.children)
+          .map((cell) => '"' + cell.textContent.trim().replace(/"/g, '""') + '"')
+          .join(',')
+      )
+      .join('\n');
+  }
+
+  document.querySelectorAll('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const csv = tableToCsv(btn.dataset.copy);
+      try {
+        await navigator.clipboard.writeText(csv);
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      } catch {
+        alert('Could not copy — your browser may be blocking clipboard access here.');
+      }
+    });
+  });
+
+  const SECTIONS = [
+    {
+      id: 'land', title: 'Landing & marketing', items: [
+        ['LAND-01', 'Landing page loads with zero console errors', 'Desktop width, fresh load of <code>/</code>.'],
+        ['LAND-02', 'No horizontal overflow at 390px width', 'Check hero, dashboard preview, pricing-free beta card.'],
+        ['LAND-03', 'Product / How it works / Beta nav links scroll to their sections', 'Hash anchors: <code>#features</code> <code>#how-it-works</code> <code>#beta</code>.'],
+        ['LAND-04', 'Every "Join the beta" button routes to <code>/signup</code>', 'Navbar, hero, beta card, final CTA — all four.'],
+        ['LAND-05', '"Log in" routes to <code>/login</code>', ''],
+        ['LAND-06', 'No public pricing cards appear anywhere on the page', 'Beta card only — Free/Pro/Agency pricing lives in-app now.'],
+        ['LAND-07', 'Automation flow diagram and dashboard preview render without overlap', 'Both the horizontal (desktop) and vertical (mobile) flow layouts.'],
+      ],
+    },
+    {
+      id: 'auth', title: 'Authentication', items: [
+        ['AUTH-01', 'Sign up with a new email + password (≥6 chars) succeeds', ''],
+        ['AUTH-02', 'Sign up with a duplicate email shows an inline error, not a crash', ''],
+        ['AUTH-03', 'Password eye-icon toggles plaintext/masked', 'On Login, Signup, and Reset Password forms.'],
+        ['AUTH-04', 'Confirmation email arrives within a few minutes', 'Check inbox and spam.'],
+        ['AUTH-05', '"Resend confirmation email" works and respects the cooldown', 'Expect <code>over_email_send_rate_limit</code> within ~60s of the last send.'],
+        ['AUTH-06', 'Logging in before confirming shows a "confirm your email" notice with a working resend link', ''],
+        ['AUTH-07', 'A valid confirmation link signs the user in and redirects to <code>/dashboard</code>', ''],
+        ['AUTH-08', 'An expired or already-used confirmation link shows the "link has expired" toast', 'Not a silent drop onto the landing page.'],
+        ['AUTH-09', 'New signup gets a free <code>subscriptions</code> row and a default 3-step <code>reminder_sequences</code>', 'Verify in Supabase Table Editor: day 1/polite, day 7/firm, day 14/final.'],
+        ['AUTH-10', 'Wrong password shows "Invalid login credentials", not a raw error', ''],
+        ['AUTH-11', '"Forgot password?" on Login routes to <code>/forgot-password</code>', ''],
+        ['AUTH-12', 'Requesting a reset link never reveals whether the email exists', 'Same confirmation message either way.'],
+        ['AUTH-13', 'Reset email link opens <code>/reset-password</code> with the new-password form visible', ''],
+        ['AUTH-14', 'Setting a new password redirects to <code>/dashboard</code> already signed in', ''],
+        ['AUTH-15', 'Old password stops working after reset; new one logs in', ''],
+        ['AUTH-16', 'An expired/invalid reset link shows "Link expired" with a link back to <code>/forgot-password</code>', 'Never a stuck "Verifying your link…" spinner.'],
+      ],
+    },
+    {
+      id: 'dash', title: 'Dashboard', items: [
+        ['DASH-01', 'Zero-invoice account shows the "No invoices yet" empty state', 'With a working "Add invoice" CTA.'],
+        ['DASH-02', 'Outstanding / Overdue / Due soon / Paid-this-month cards match a manual sum', 'Cross-check against the raw invoice list.'],
+        ['DASH-03', '"Needs attention" banner appears only when ≥1 invoice is overdue', '"View overdue invoices" filters the table to <code>status=overdue</code>.'],
+        ['DASH-04', '"You\'re all caught up" banner shows when invoices exist but none are overdue', ''],
+        ['DASH-05', 'Search filters by client name and by invoice number', ''],
+        ['DASH-06', 'Status dropdown filters correctly for each of Draft/Sent/Overdue/Paid/Void', ''],
+        ['DASH-07', 'Sort dropdown orders correctly by due date, amount, and status', ''],
+        ['DASH-08', 'Changing search, filter, or sort resets pagination to page 1', ''],
+        ['DASH-09', 'Pagination controls appear only past 10 matching invoices', ''],
+        ['DASH-10', '"Showing X–Y of Z" and "Page N of M" stay correct while paging', ''],
+        ['DASH-11', 'Clicking a row opens that invoice\'s detail page', ''],
+        ['DASH-12', 'Below 640px the table switches to stacked cards with no horizontal scroll', ''],
+      ],
+    },
+    {
+      id: 'cli', title: 'Clients', items: [
+        ['CLI-01', '"Add your first client" empty state shows with zero clients', ''],
+        ['CLI-02', 'Add-client dialog requires Name and Email before submit', ''],
+        ['CLI-03', 'Editing a client updates the row in place, no duplicate row', ''],
+        ['CLI-04', 'Deleting a client (confirm dialog) leaves their past invoices untouched', ''],
+        ['CLI-05', 'Active invoices / Outstanding / Last activity columns match real invoice history', ''],
+        ['CLI-06', 'Pagination appears past 10 clients and pages correctly', ''],
+      ],
+    },
+    {
+      id: 'inv', title: 'Creating an invoice', items: [
+        ['INV-01', 'Client picker search filters by name and email', 'Arrow keys + Enter select a result.'],
+        ['INV-02', '"+ Add new client" inside the form creates a client without leaving the page', ''],
+        ['INV-03', 'The 4th active invoice on the Free plan is blocked with the upgrade message', 'Not a raw Postgres error — the <code>enforce_invoice_limit</code> trigger backs this up server-side too.'],
+        ['INV-04', 'Void and Paid invoices don\'t count toward that 3-invoice limit', ''],
+        ['INV-05', 'A valid submit calls <code>create-payment-link</code> and the detail page shows a real Stripe Payment Link', ''],
+        ['INV-06', 'The summary sidebar\'s amount/due-date/client update live as the form is filled in', ''],
+        ['INV-07', 'The sidebar\'s reminder-sequence preview matches the account\'s actual configured steps', ''],
+      ],
+    },
+    {
+      id: 'det', title: 'Invoice detail', items: [
+        ['DET-01', '"Mark as Sent" moves a Draft invoice to Sent', ''],
+        ['DET-02', '"Mark as Paid" (confirm dialog) sets <code>status=paid</code> + <code>paid_at</code>, hides reminder actions', ''],
+        ['DET-03', '"Pause reminders" / "Resume reminders" toggles instantly and persists on reload', ''],
+        ['DET-04', '"Send reminder now" (confirm dialog) delivers a real email and logs a timeline entry', ''],
+        ['DET-05', '"Void" (confirm dialog) sets <code>status=void</code> and drops out of active-invoice counts', ''],
+        ['DET-06', '"Copy link" copies the Stripe URL and shows a toast', ''],
+        ['DET-07', '"Open payment page" opens a working Stripe Checkout for the invoice amount', ''],
+        ['DET-08', 'Reminder timeline shows sent steps as filled dots, scheduled steps as hollow dots with correct dates', ''],
+      ],
+    },
+    {
+      id: 'rem', title: 'Reminder settings', items: [
+        ['REM-01', 'A fresh account\'s default sequence has exactly 3 steps in order', 'Day 1/polite, day 7/firm, day 14/final.'],
+        ['REM-02', '"Add reminder" appends a new step at the end of the sequence', ''],
+        ['REM-03', 'Editing day offset, tone, subject, or body persists after closing the dialog', ''],
+        ['REM-04', 'Clicking a <code>{{variable}}</code> chip inserts it at the cursor in the last-focused field', ''],
+        ['REM-05', 'The live preview renders sample data with no leftover <code>{{…}}</code> tokens', ''],
+        ['REM-06', 'Deleting a step removes it without corrupting the remaining order', ''],
+      ],
+    },
+    {
+      id: 'cron', title: 'Reminder automation (backend)', items: [
+        ['CRON-01', 'Calling <code>send-reminders</code> without <code>x-cron-secret</code> returns 401', 'Never a silent 200.'],
+        ['CRON-02', 'A correct call against a past-due test invoice sends the right step and logs a <code>reminder_log</code> row', ''],
+        ['CRON-03', 'Running the sweep twice in a row never double-sends the same step to the same invoice', ''],
+        ['CRON-04', 'An invoice with <code>reminders_paused=true</code> is skipped by the sweep', ''],
+        ['CRON-05', 'Paid and Void invoices are never touched by the sweep', ''],
+        ['CRON-06', 'An invoice flips <code>sent → overdue</code> automatically once its due date passes', ''],
+        ['CRON-07', '<code>send-reminders-daily</code> shows successful run history in <code>cron.job_run_details</code> the next day', ''],
+      ],
+    },
+    {
+      id: 'pay', title: 'Stripe payments', items: [
+        ['PAY-01', 'Paying a test invoice with 4242 4242 4242 4242 completes Checkout successfully', ''],
+        ['PAY-02', '<code>stripe-webhook</code> marks the matching invoice paid within moments of payment', ''],
+        ['PAY-03', 'No further reminders fire for that invoice even if the sweep runs again', ''],
+        ['PAY-04', 'A webhook call with a missing/invalid signature is rejected', 'Check function logs for a 400, not a 200.'],
+      ],
+    },
+    {
+      id: 'bill', title: 'Billing', items: [
+        ['BILL-01', 'Billing page shows the "Beta" badge and free-during-beta messaging', ''],
+        ['BILL-02', 'The usage bar reflects the real active-invoice count out of 3', ''],
+        ['BILL-03', 'Every plan action button is genuinely disabled ("Coming soon" / "Current plan")', 'No click reaches <code>create-portal-session</code> during beta.'],
+      ],
+    },
+    {
+      id: 'sec', title: 'Security & data isolation', items: [
+        ['SEC-01', 'A second test account cannot see the first account\'s clients or invoices', ''],
+        ['SEC-02', 'Fetching another user\'s invoice by ID directly returns no row', 'RLS should block it silently, not error.'],
+        ['SEC-03', 'The service-role key never appears in a file that isn\'t git-ignored', 'Spot-check <code>.env.example</code> before every commit.'],
+      ],
+    },
+    {
+      id: 'resp', title: 'Responsive & accessibility', items: [
+        ['RESP-01', 'Every authenticated page is usable at 390px with no horizontal scrollbar', ''],
+        ['RESP-02', 'Tab order through each form is sensible; Escape closes open dialogs', ''],
+        ['RESP-03', 'Icon-only buttons (edit, delete, close) carry an accessible label', 'Not just a bare icon.'],
+        ['RESP-04', 'Status is never conveyed by color alone', 'Every badge also carries a text label.'],
+      ],
+    },
+    {
+      id: 'err', title: 'Error handling', items: [
+        ['ERR-01', 'Blocking network to <code>*.supabase.co</code> on any list page shows the error banner + "Try again"', 'Never an infinite skeleton.'],
+        ['ERR-02', 'Restoring the network and clicking "Try again" successfully reloads the data', ''],
+        ['ERR-03', 'A failed save inside a dialog shows its error inline in that dialog', 'Not a silent no-op.'],
+      ],
+    },
+  ];
+
+  const STORAGE_PREFIX = 'paynudge-tp:';
+
+  function readChecked(id) {
+    try { return localStorage.getItem(STORAGE_PREFIX + id) === '1'; }
+    catch { return false; }
+  }
+  function writeChecked(id, val) {
+    try {
+      if (val) localStorage.setItem(STORAGE_PREFIX + id, '1');
+      else localStorage.removeItem(STORAGE_PREFIX + id);
+    } catch {}
+  }
+
+  const toc = document.getElementById('toc');
+  const main = document.getElementById('main');
+
+  SECTIONS.forEach((section, si) => {
+    const num = String(si + 1).padStart(2, '0');
+
+    const a = document.createElement('a');
+    a.href = '#sec-' + section.id;
+    a.innerHTML = '<span>' + section.title + '</span><span class="toc-count" data-toc="' + section.id + '"></span>';
+    toc.appendChild(a);
+
+    const sectionEl = document.createElement('section');
+    sectionEl.className = 'group';
+    sectionEl.id = 'sec-' + section.id;
+
+    const head = document.createElement('div');
+    head.className = 'group-head';
+    head.innerHTML =
+      '<span class="group-num">' + num + '</span>' +
+      '<h2>' + section.title + '</h2>' +
+      '<span class="group-progress" data-progress="' + section.id + '"></span>';
+    sectionEl.appendChild(head);
+
+    const ul = document.createElement('ul');
+    ul.className = 'items';
+
+    section.items.forEach(([id, action, note]) => {
+      const li = document.createElement('li');
+      li.className = 'item';
+      li.dataset.id = id;
+
+      const checked = readChecked(id);
+      if (checked) li.classList.add('done');
+
+      li.innerHTML =
+        '<input type="checkbox" id="chk-' + id + '" ' + (checked ? 'checked' : '') + ' />' +
+        '<label for="chk-' + id + '">' +
+          '<div class="item-top"><span class="item-id">' + id + '</span><span class="item-action">' + action + '</span></div>' +
+          (note ? '<div class="item-note">' + note + '</div>' : '') +
+        '</label>';
+
+      const checkbox = li.querySelector('input');
+      checkbox.addEventListener('change', () => {
+        writeChecked(id, checkbox.checked);
+        li.classList.toggle('done', checkbox.checked);
+        updateProgress();
+      });
+
+      ul.appendChild(li);
+    });
+
+    sectionEl.appendChild(ul);
+    main.appendChild(sectionEl);
+  });
+
+  function updateProgress() {
+    let totalAll = 0, doneAll = 0;
+    SECTIONS.forEach((section) => {
+      const total = section.items.length;
+      const done = section.items.filter(([id]) => readChecked(id)).length;
+      totalAll += total;
+      doneAll += done;
+      const tocEl = document.querySelector('[data-toc="' + section.id + '"]');
+      if (tocEl) tocEl.textContent = done + '/' + total;
+      const progEl = document.querySelector('[data-progress="' + section.id + '"]');
+      if (progEl) progEl.textContent = done + ' / ' + total;
+    });
+    document.getElementById('overall-count').innerHTML = doneAll + '<span> / ' + totalAll + ' checks</span>';
+    const pct = totalAll ? Math.round((doneAll / totalAll) * 100) : 0;
+    document.getElementById('overall-fill').style.width = pct + '%';
+  }
+
+  updateProgress();
+
+  document.getElementById('hide-done').addEventListener('change', (e) => {
+    document.getElementById('main').classList.toggle('hide-done', e.target.checked);
+  });
+
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    if (!confirm('Clear all checked items in this browser?')) return;
+    document.querySelectorAll('.item input[type="checkbox"]').forEach((cb) => {
+      cb.checked = false;
+      cb.closest('.item').classList.remove('done');
+      writeChecked(cb.closest('.item').dataset.id, false);
+    });
+    updateProgress();
+  });
+</script>
