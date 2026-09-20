@@ -15,7 +15,7 @@ export interface Client {
 export interface Invoice {
   id: string
   user_id: string
-  client_id: string
+  client_id: string | null
   invoice_number: string
   description: string | null
   amount: number

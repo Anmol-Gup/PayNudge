@@ -33,10 +33,20 @@ export function Clients() {
   const [saving, setSaving] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Client | null>(null)
   const [deleting, setDeleting] = useState(false)
-  const deleteInvoiceCount = useMemo(
-    () => (deleteTarget ? invoices.filter((i) => i.client_id === deleteTarget.id).length : 0),
-    [deleteTarget, invoices]
-  )
+  // Draft/sent/overdue/partially_paid invoices are deleted along with the
+  // client (they're the only statuses the reminder sweep still processes,
+  // so they're the only ones that could try emailing a client that no
+  // longer exists). Paid/void invoices are terminal and kept as history,
+  // just unlinked from the deleted client — mirrors the DB trigger in
+  // migration 0016.
+  const { deleteCount, keepCount } = useMemo(() => {
+    if (!deleteTarget) return { deleteCount: 0, keepCount: 0 }
+    const clientInvoices = invoices.filter((i) => i.client_id === deleteTarget.id)
+    const deleteCount = clientInvoices.filter((i) =>
+      ['draft', 'sent', 'overdue', 'partially_paid'].includes(i.status)
+    ).length
+    return { deleteCount, keepCount: clientInvoices.length - deleteCount }
+  }, [deleteTarget, invoices])
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [emailLocked, setEmailLocked] = useState(false)
@@ -69,6 +79,7 @@ export function Clients() {
   const stats = useMemo(() => {
     const map = new Map<string, { active: number; outstanding: number; lastActivity: string | null }>()
     for (const invoice of invoices) {
+      if (!invoice.client_id) continue
       const entry = map.get(invoice.client_id) ?? { active: 0, outstanding: 0, lastActivity: null }
       if (invoice.status === 'sent' || invoice.status === 'overdue') {
         entry.active += 1
@@ -342,9 +353,17 @@ export function Clients() {
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title={`Delete ${deleteTarget ? getClientFullName(deleteTarget) : ''}?`}
         description={
-          deleteTarget && deleteInvoiceCount > 0
-            ? `This can't be undone. ${deleteInvoiceCount} invoice${deleteInvoiceCount === 1 ? '' : 's'} for this client — and their reminder history — will be permanently deleted too.`
-            : "This can't be undone."
+          [
+            "This can't be undone.",
+            deleteCount > 0
+              ? `${deleteCount} unresolved invoice${deleteCount === 1 ? '' : 's'} for this client — and their reminder history — will be permanently deleted too.`
+              : null,
+            keepCount > 0
+              ? `${keepCount} paid/void invoice${keepCount === 1 ? '' : 's'} will be kept for your records, no longer linked to a client.`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(' ')
         }
         confirmLabel="Delete client"
         tone="danger"
