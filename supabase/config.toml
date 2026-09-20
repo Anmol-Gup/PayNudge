@@ -16,6 +16,8 @@ additional_redirect_urls = [
   "http://localhost:5173",
   "http://localhost:5173/dashboard",
   "http://localhost:5173/reset-password",
+  "https://paynudge-umber.vercel.app/dashboard",
+  "https://paynudge-umber.vercel.app/reset-password",
 ]
 
 [auth.external.google]
