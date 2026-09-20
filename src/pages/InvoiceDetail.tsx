@@ -518,7 +518,11 @@ export function InvoiceDetail() {
               {draftMethods.includes('stripe') && (
                 <div className="border-t border-slate-100 pt-4">
                   <p className="mb-3 text-sm font-semibold text-slate-900">Stripe</p>
-                  <StripeLinkFields url={draftLinkUrl} onUrlChange={setDraftLinkUrl} />
+                  <StripeLinkFields
+                    url={draftLinkUrl}
+                    onUrlChange={setDraftLinkUrl}
+                    webhookConfigured={Boolean(paymentSettings?.stripe_webhook_secret)}
+                  />
                 </div>
               )}
               {draftMethods.includes('upi') && (

@@ -50,6 +50,7 @@ export function InvoiceForm() {
   const [bankDetails, setBankDetails] = useState('')
   const [qrPath, setQrPath] = useState<string | null>(null)
   const [uploadingQr, setUploadingQr] = useState(false)
+  const [webhookConfigured, setWebhookConfigured] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -68,6 +69,7 @@ export function InvoiceForm() {
         setUpiId(accountSettings.upi_id ?? '')
         setBankDetails(accountSettings.bank_details ?? '')
         setQrPath(accountSettings.qr_code_path)
+        setWebhookConfigured(Boolean(accountSettings.stripe_webhook_secret))
       }
 
       const { data: sequence } = await supabase
@@ -284,7 +286,11 @@ export function InvoiceForm() {
                 {enabledMethods.includes('stripe') && (
                   <div className="border-t border-slate-100 pt-4">
                     <p className="mb-3 text-sm font-semibold text-slate-900">Stripe</p>
-                    <StripeLinkFields url={paymentLinkUrl} onUrlChange={setPaymentLinkUrl} />
+                    <StripeLinkFields
+                      url={paymentLinkUrl}
+                      onUrlChange={setPaymentLinkUrl}
+                      webhookConfigured={webhookConfigured}
+                    />
                   </div>
                 )}
                 {enabledMethods.includes('upi') && (

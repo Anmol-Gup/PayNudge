@@ -357,9 +357,11 @@ export function QrField({
 export function StripeLinkFields({
   url,
   onUrlChange,
+  webhookConfigured,
 }: {
   url: string
   onUrlChange: (value: string) => void
+  webhookConfigured: boolean
 }) {
   return (
     <div>
@@ -371,11 +373,18 @@ export function StripeLinkFields({
           placeholder="https://buy.stripe.com/..."
         />
       </Field>
-      <NoSyncNote>
-        Make sure this link is set to the exact amount above — PayNudge can't check that
-        automatically. If Stripe reports a different amount actually paid, we'll flag it on the
-        invoice once payment comes in.
-      </NoSyncNote>
+      {webhookConfigured ? (
+        <NoSyncNote>
+          Make sure this link is set to the exact amount above — PayNudge can't check that
+          automatically. If Stripe reports a different amount actually paid, we'll flag it on the
+          invoice once payment comes in.
+        </NoSyncNote>
+      ) : (
+        <NoSyncNote>
+          No automatic status sync yet — you haven't connected a Stripe webhook in Payment settings,
+          so you'll need to mark this invoice paid yourself once you receive payment.
+        </NoSyncNote>
+      )}
     </div>
   )
 }
