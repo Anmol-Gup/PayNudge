@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
   Copy,
@@ -10,6 +10,7 @@ import {
   CircleCheck,
   Ban,
   Pencil,
+  Trash2,
 } from 'lucide-react'
 import { StatusBadge } from '../components/StatusBadge'
 import { Card, CardContent, CardHeader } from '../components/ui/Card'
@@ -67,10 +68,11 @@ function resolvePayment(invoice: Invoice, settings: PaymentSettings | null) {
   }
 }
 
-type ConfirmAction = 'void' | 'send-reminder' | null
+type ConfirmAction = 'void' | 'send-reminder' | 'delete' | null
 
 export function InvoiceDetail() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const toast = useToast()
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [logs, setLogs] = useState<ReminderLog[]>([])
@@ -226,6 +228,21 @@ export function InvoiceDetail() {
       toast.success('Invoice voided.')
       load()
     }
+  }
+
+  const deleteInvoice = async () => {
+    if (!invoice) return
+    setActionLoading(true)
+    setActionError(null)
+    const { error } = await supabase.from('invoices').delete().eq('id', invoice.id)
+    setActionLoading(false)
+    setConfirmAction(null)
+    if (error) {
+      setActionError(error.message)
+      return
+    }
+    toast.success('Invoice deleted.')
+    navigate('/invoices')
   }
 
   const toggleReminders = async () => {
@@ -495,6 +512,14 @@ export function InvoiceDetail() {
               Void
             </Button>
           )}
+          <Button
+            variant="ghost"
+            onClick={() => setConfirmAction('delete')}
+            className={invoice.status === 'paid' || invoice.status === 'void' ? 'ml-auto text-danger-600' : 'text-danger-600'}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Delete
+          </Button>
         </div>
       </Card>
 
@@ -791,6 +816,16 @@ export function InvoiceDetail() {
         confirmLabel="Send reminder"
         loading={actionLoading}
         onConfirm={sendReminderNow}
+      />
+      <ConfirmDialog
+        open={confirmAction === 'delete'}
+        onOpenChange={(open) => !open && setConfirmAction(null)}
+        title={`Delete invoice ${invoice.invoice_number}?`}
+        description="This can't be undone. Its reminder history and any recorded payments will be permanently deleted too. To keep the record but stop reminders instead, void it instead of deleting."
+        confirmLabel="Delete invoice"
+        tone="danger"
+        loading={actionLoading}
+        onConfirm={deleteInvoice}
       />
     </div>
   )

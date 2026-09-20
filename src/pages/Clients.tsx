@@ -33,6 +33,10 @@ export function Clients() {
   const [saving, setSaving] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Client | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const deleteInvoiceCount = useMemo(
+    () => (deleteTarget ? invoices.filter((i) => i.client_id === deleteTarget.id).length : 0),
+    [deleteTarget, invoices]
+  )
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [emailLocked, setEmailLocked] = useState(false)
@@ -337,7 +341,11 @@ export function Clients() {
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title={`Delete ${deleteTarget ? getClientFullName(deleteTarget) : ''}?`}
-        description="This can't be undone. Invoices already linked to this client are unaffected."
+        description={
+          deleteTarget && deleteInvoiceCount > 0
+            ? `This can't be undone. ${deleteInvoiceCount} invoice${deleteInvoiceCount === 1 ? '' : 's'} for this client — and their reminder history — will be permanently deleted too.`
+            : "This can't be undone."
+        }
         confirmLabel="Delete client"
         tone="danger"
         loading={deleting}

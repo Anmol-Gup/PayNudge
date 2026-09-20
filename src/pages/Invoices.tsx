@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Search, CheckCircle2, ChevronDown, AlertTriangle, PartyPopper } from 'lucide-react'
+import { Plus, Search, CheckCircle2, ChevronDown, AlertTriangle, PartyPopper, Trash2 } from 'lucide-react'
 import { Button, ButtonLink } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { StatusBadge } from '../components/StatusBadge'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { EmptyState } from '../components/ui/EmptyState'
 import { ErrorBanner } from '../components/ui/ErrorBanner'
 import { SkeletonTable } from '../components/ui/Skeleton'
@@ -14,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '../components/ui/DropdownMenu'
 import { Pagination } from '../components/ui/Pagination'
+import { useToast } from '../components/ui/Toast'
 import { supabase } from '../lib/supabaseClient'
 import { formatCurrency, formatRelativeDue, formatShortDate, getClientFullName } from '../lib/format'
 import { describeNextReminder } from '../lib/reminders'
@@ -39,6 +41,7 @@ const SORT_OPTIONS: { label: string; value: SortKey }[] = [
 ]
 
 export function Invoices() {
+  const toast = useToast()
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [reminderSteps, setReminderSteps] = useState<ReminderStep[]>([])
   const [sentByInvoice, setSentByInvoice] = useState<Map<string, Set<string>>>(new Map())
@@ -49,6 +52,22 @@ export function Invoices() {
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus | 'all'>('all')
   const [sortKey, setSortKey] = useState<SortKey>('due_date')
   const [page, setPage] = useState(1)
+  const [deleteTarget, setDeleteTarget] = useState<Invoice | null>(null)
+  const [deleting, setDeleting] = useState(false)
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return
+    setDeleting(true)
+    const { error: deleteError } = await supabase.from('invoices').delete().eq('id', deleteTarget.id)
+    setDeleting(false)
+    setDeleteTarget(null)
+    if (deleteError) {
+      toast.error(deleteError.message)
+      return
+    }
+    toast.success('Invoice deleted.')
+    load()
+  }
 
   const load = async () => {
     setLoading(true)
@@ -280,6 +299,7 @@ export function Invoices() {
                     <th className="px-5 py-2.5">Due date</th>
                     <th className="px-5 py-2.5">Status</th>
                     <th className="px-5 py-2.5">Reminder</th>
+                    <th className="px-5 py-2.5" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -313,6 +333,15 @@ export function Invoices() {
                         <StatusBadge status={invoice.status} />
                       </td>
                       <td className="px-5 py-3.5 text-slate-500">{nextReminderLabel(invoice)}</td>
+                      <td className="px-5 py-3.5 text-right">
+                        <button
+                          onClick={() => setDeleteTarget(invoice)}
+                          aria-label={`Delete invoice ${invoice.invoice_number}`}
+                          className="rounded-md p-1.5 text-slate-400 hover:bg-danger-50 hover:text-danger-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -351,6 +380,17 @@ export function Invoices() {
           </>
         )}
       </Card>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title={`Delete invoice ${deleteTarget?.invoice_number ?? ''}?`}
+        description="This can't be undone. Its reminder history and any recorded payments will be permanently deleted too. To keep the record but stop reminders instead, void it from the invoice page."
+        confirmLabel="Delete invoice"
+        tone="danger"
+        loading={deleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }
