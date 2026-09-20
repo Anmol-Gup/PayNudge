@@ -33,7 +33,7 @@ import {
   BankField,
   QrField,
   bankDetailsRows,
-  isBankDetailsValid,
+  findUnconfiguredMethod,
   withInvoiceReference,
 } from '../components/PaymentMethodFields'
 import type {
@@ -320,8 +320,19 @@ export function InvoiceDetail() {
 
   const savePayment = async () => {
     if (!invoice) return
-    if (draftMethods.includes('bank') && !isBankDetailsValid(draftBankDetails)) {
-      toast.error('Fill in account holder name, bank name, account number, and IFSC/SWIFT code.')
+    const unconfigured = findUnconfiguredMethod(draftMethods, {
+      paymentLinkUrl: draftLinkUrl,
+      upiId: draftUpiId,
+      bankDetails: draftBankDetails,
+      qrPath: draftQrPath,
+    })
+    if (unconfigured) {
+      const label = PAYMENT_METHODS.find((m) => m.value === unconfigured)?.label ?? unconfigured
+      toast.error(
+        unconfigured === 'bank'
+          ? 'Fill in account holder name, bank name, account number, and IFSC/SWIFT code.'
+          : `Add the details for ${label} before saving, or remove it as a payment method.`
+      )
       return
     }
     setSavingPayment(true)

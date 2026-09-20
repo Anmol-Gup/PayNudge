@@ -197,6 +197,21 @@ export function isBankDetailsValid(raw: string | null): boolean {
   )
 }
 
+// Mirrors isBankDetailsValid's "no half-filled method" rule across every
+// method: enabling one on an invoice without its actual data would silently
+// render nothing in the reminder email, which is more confusing than just
+// refusing to save.
+export function findUnconfiguredMethod(
+  methods: PaymentMethod[],
+  data: { paymentLinkUrl?: string; upiId?: string; bankDetails?: string | null; qrPath?: string | null }
+): PaymentMethod | null {
+  if (methods.includes('stripe') && !data.paymentLinkUrl?.trim()) return 'stripe'
+  if (methods.includes('upi') && !data.upiId?.trim()) return 'upi'
+  if (methods.includes('bank') && !isBankDetailsValid(data.bankDetails ?? null)) return 'bank'
+  if (methods.includes('qr') && !data.qrPath) return 'qr'
+  return null
+}
+
 export function bankDetailsRows(raw: string | null): { label: string; value: string }[] {
   const f = parseBankDetails(raw)
   const rows: { label: string; value: string }[] = []

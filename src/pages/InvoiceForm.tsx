@@ -20,7 +20,8 @@ import {
   UpiField,
   BankField,
   QrField,
-  isBankDetailsValid,
+  findUnconfiguredMethod,
+  PAYMENT_METHODS,
 } from '../components/PaymentMethodFields'
 import type { Client, PaymentMethod, PaymentSettings, ReminderStep } from '../types'
 
@@ -124,8 +125,19 @@ export function InvoiceForm() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!clientId || !invoiceNumber.trim() || !amount || !dueDate) return
-    if (enabledMethods.includes('bank') && !isBankDetailsValid(bankDetails)) {
-      setError('Fill in account holder name, bank name, account number, and IFSC/SWIFT code.')
+    const unconfigured = findUnconfiguredMethod(enabledMethods, {
+      paymentLinkUrl,
+      upiId,
+      bankDetails,
+      qrPath,
+    })
+    if (unconfigured) {
+      const label = PAYMENT_METHODS.find((m) => m.value === unconfigured)?.label ?? unconfigured
+      setError(
+        unconfigured === 'bank'
+          ? 'Fill in account holder name, bank name, account number, and IFSC/SWIFT code.'
+          : `Add the details for ${label} before saving, or remove it as a payment method.`
+      )
       return
     }
     setSaving(true)
