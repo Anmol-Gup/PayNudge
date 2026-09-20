@@ -47,7 +47,11 @@ export function Login() {
 
   const handleResendConfirmation = async () => {
     setResending(true)
-    const { error: resendError } = await supabase.auth.resend({ type: 'signup', email })
+    const { error: resendError } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+    })
     setResending(false)
     if (resendError) {
       setError(resendError.message)
