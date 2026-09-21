@@ -261,25 +261,6 @@ export function Landing() {
           </div>
         </section>
 
-        {/* Demo video */}
-        <section className="border-t border-slate-100 py-16">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6">
-            <h2 className="text-center text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-              See it in action
-            </h2>
-            <div className="relative mt-8 aspect-video overflow-hidden rounded-xl border border-slate-200 shadow-sm">
-              <iframe
-                src="https://app.trupeer.ai/embed/BdhVw0654/doc?app=69f9261c487f9d6e7dbfc075"
-                className="absolute inset-0 h-full w-full border-0"
-                allow="autoplay; fullscreen; encrypted-media; clipboard-write"
-                allowFullScreen
-                loading="lazy"
-                title="PayNudge demo"
-              />
-            </div>
-          </div>
-        </section>
-
         {/* Features */}
         <section id="features" className="border-t border-slate-100 bg-slate-50 py-16">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
