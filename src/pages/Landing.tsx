@@ -344,19 +344,13 @@ export function Landing() {
 
       <footer className="border-t border-slate-100 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-center text-sm text-slate-400 sm:px-6">
-          <a
-            href="https://www.producthunt.com/products/paynudge-5?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-paynudge-29df7cfb-c8b3-4220-b1f0-b60a7714b472"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <img
-              alt="PayNudge - Automated invoice reminders for freelancers and agencies. | Product Hunt"
-              width="250"
-              height="54"
-              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1257521&theme=light&t=1790020235577"
-            />
-          </a>
           <span>© {new Date().getFullYear()} PayNudge</span>
+          <span>
+            For enquiries, contact us:{' '}
+            <a href="mailto:contact.agbusinesssolutions@gmail.com" className="text-slate-500 hover:text-slate-700">
+              contact.agbusinesssolutions@gmail.com
+            </a>
+          </span>
         </div>
       </footer>
     </div>
