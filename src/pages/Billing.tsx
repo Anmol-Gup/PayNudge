@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, Sparkles } from 'lucide-react'
+import { Check, Sparkles, Mail } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { ErrorBanner } from '../components/ui/ErrorBanner'
@@ -169,6 +169,26 @@ export function Billing() {
           ))}
         </div>
       </div>
+
+      <Card className="bg-slate-50/60 p-5">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+            <Mail className="h-4 w-4" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-700">Questions about billing?</p>
+            <p className="mt-1 text-sm text-slate-500">
+              Need help with your plan or have a question about PayNudge?{' '}
+              <a
+                href="mailto:contact.agbusinesssolutions@gmail.com"
+                className="font-medium text-brand-600 hover:underline"
+              >
+                contact.agbusinesssolutions@gmail.com
+              </a>
+            </p>
+          </div>
+        </div>
+      </Card>
     </div>
   )
 }
