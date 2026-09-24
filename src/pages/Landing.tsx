@@ -127,33 +127,20 @@ export function Landing() {
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </a>
             </div>
-            <div className="mx-auto mt-6 flex max-w-full flex-wrap items-center justify-center gap-4">
-              <a
-                href="https://www.producthunt.com/products/paynudge-5?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-paynudge-29df7cfb-c8b3-4220-b1f0-b60a7714b472"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-[190px] max-w-full"
-              >
-                <img
-                  alt="PayNudge - Automated invoice reminders for freelancers and agencies. | Product Hunt"
-                  width="250"
-                  height="54"
-                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1257521&theme=light&t=1790020235577"
-                  className="h-auto w-full"
-                />
-              </a>
-              <a
-                href="https://saashunt.best/projects/paynudge?utm_source=badge"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <img
-                  src="https://saashunt.best/images/badges/featured-on-light.svg"
-                  alt="Featured on SaasHunt"
-                  className="h-11 w-auto max-w-full"
-                />
-              </a>
-            </div>
+            <a
+              href="https://www.producthunt.com/products/paynudge-5?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-paynudge-29df7cfb-c8b3-4220-b1f0-b60a7714b472"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mx-auto mt-6 block w-[190px] max-w-full"
+            >
+              <img
+                alt="PayNudge - Automated invoice reminders for freelancers and agencies. | Product Hunt"
+                width="250"
+                height="54"
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1257521&theme=light&t=1790020235577"
+                className="h-auto w-full"
+              />
+            </a>
             <p className="mt-3 text-sm text-slate-500">Free during beta</p>
           </div>
 
