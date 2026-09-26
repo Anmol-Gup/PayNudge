@@ -1,0 +1,25 @@
+# PayNudge
+
+> PayNudge is a web app that tracks invoices freelancers and small agencies have already sent to clients, and automatically emails escalating payment reminders — before the due date, then increasingly firm reminders after — until the invoice is paid. It is not a full invoicing or accounting app; it only tracks due dates, payment status, and automates follow-up.
+
+## What it does
+
+- Tracks invoices (amount, currency, due date, client, status: draft/sent/overdue/partially paid/paid/void).
+- Sends one optional pre-due "heads up" reminder and up to three escalating post-due reminders (polite, firm, final), each with a configurable day offset and editable subject/body template.
+- Supports multiple payment methods shown together in the same reminder email: Stripe (via a payment link the user provides from their own Stripe account), UPI, bank transfer, and an uploaded QR code. No method is required; whichever ones are configured are shown.
+- Tracks partial payments — reminders always quote the remaining balance owed, not the original invoice total.
+- Stripe payments auto-confirm via a per-user webhook, without PayNudge ever holding the user's Stripe API key or touching the money directly — payments land straight in the user's own Stripe account.
+- Users can pause/resume reminders per invoice, or trigger the next reminder immediately ahead of schedule.
+
+## Who it's for
+
+Freelancers, contractors, and small agencies who already invoice clients through Stripe, a PDF, or any other method, and want automated follow-up on late payments without manually writing reminder emails.
+
+## Pricing
+
+Free during the current beta. Paid plans (Pro, Agency) are displayed but not yet available for purchase.
+
+## Links
+
+- Homepage: https://paynudge-umber.vercel.app/
+- Sign up: https://paynudge-umber.vercel.app/signup
