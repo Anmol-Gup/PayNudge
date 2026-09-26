@@ -9,8 +9,9 @@
 // createRoot, not hydrateRoot, so a plain client-side remount over the
 // prerendered markup is expected and safe).
 import { preview } from 'vite'
-import puppeteer from 'puppeteer'
-import { readFileSync, writeFileSync } from 'node:fs'
+import puppeteer from 'puppeteer-core'
+import chromium from '@sparticuz/chromium'
+import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
@@ -27,7 +28,8 @@ async function main() {
 
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-gpu'],
+    args: chromium.args,
+    executablePath: await chromium.executablePath(),
   })
 
   try {
