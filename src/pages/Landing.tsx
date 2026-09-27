@@ -7,6 +7,7 @@ import {
   CircleDollarSign,
   ArrowRight,
   RefreshCcw,
+  PlayCircle,
   CalendarClock,
   Wallet,
   ListChecks,
@@ -125,6 +126,15 @@ export function Landing() {
               >
                 See how it works
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </a>
+              <a
+                href="https://app.trupeer.ai/view/BdhVw0654/pay-nudge"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex h-11 items-center gap-1.5 px-4 text-base font-medium text-slate-600 transition-colors hover:text-slate-900"
+              >
+                <PlayCircle className="h-4 w-4" />
+                Watch demo
               </a>
             </div>
             <a
