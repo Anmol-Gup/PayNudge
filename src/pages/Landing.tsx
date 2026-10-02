@@ -137,20 +137,33 @@ export function Landing() {
                 Watch demo
               </a>
             </div>
-            <a
-              href="https://www.producthunt.com/products/paynudge-5?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-paynudge-29df7cfb-c8b3-4220-b1f0-b60a7714b472"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mx-auto mt-6 block w-[190px] max-w-full"
-            >
-              <img
-                alt="PayNudge - Automated invoice reminders for freelancers and agencies. | Product Hunt"
-                width="250"
-                height="54"
-                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1257521&theme=light&t=1790020235577"
-                className="h-auto w-full"
-              />
-            </a>
+            <div className="mx-auto mt-6 flex max-w-full flex-wrap items-center justify-center gap-4">
+              <a
+                href="https://www.producthunt.com/products/paynudge-5?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-paynudge-29df7cfb-c8b3-4220-b1f0-b60a7714b472"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-[190px] max-w-full"
+              >
+                <img
+                  alt="PayNudge - Automated invoice reminders for freelancers and agencies. | Product Hunt"
+                  width="250"
+                  height="54"
+                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1257521&theme=light&t=1790020235577"
+                  className="h-auto w-full"
+                />
+              </a>
+              <a
+                href="https://launchon.it/products/paynudge"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src="https://launchon.it/api/badge/paynudge?theme=light&size=sm&type=upvotes"
+                  alt="PayNudge on LaunchOnIt"
+                  className="h-auto max-w-full"
+                />
+              </a>
+            </div>
             <p className="mt-3 text-sm text-slate-500">Free during beta</p>
           </div>
 
