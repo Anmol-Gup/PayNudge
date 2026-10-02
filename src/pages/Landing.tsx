@@ -158,7 +158,7 @@ export function Landing() {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="https://launchon.it/api/badge/paynudge?theme=light&size=sm&type=upvotes"
+                  src="https://launchon.it/api/badge/paynudge?theme=light&size=md&type=upvotes"
                   alt="PayNudge on LaunchOnIt"
                   className="h-auto max-w-full"
                 />
