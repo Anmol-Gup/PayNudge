@@ -25,7 +25,9 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-const transporter = nodemailer.createTransport({
+// Platform default sender, used only for accounts that haven't configured
+// their own SMTP credentials in Email Settings yet.
+const defaultTransporter = nodemailer.createTransport({
   host: Deno.env.get('SMTP_HOST')!,
   port: Number(Deno.env.get('SMTP_PORT') ?? '587'),
   secure: Deno.env.get('SMTP_SECURE') === 'true',
@@ -34,6 +36,49 @@ const transporter = nodemailer.createTransport({
     pass: Deno.env.get('SMTP_PASSWORD')!,
   },
 })
+
+interface Sender {
+  transporter: nodemailer.Transporter
+  from: string
+}
+
+const defaultSender: Sender = { transporter: defaultTransporter, from: FROM_EMAIL }
+
+// One sweep can process many invoices belonging to the same user — cache the
+// transporter per user_id instead of rebuilding it for every invoice.
+const senderCache = new Map<string, Sender>()
+
+async function getSenderForUser(userId: string): Promise<Sender> {
+  const cached = senderCache.get(userId)
+  if (cached) return cached
+
+  const { data: emailSettings } = await supabaseAdmin
+    .from('email_settings')
+    .select('smtp_host, smtp_port, smtp_secure, smtp_user, smtp_password, from_email, from_name')
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  let sender = defaultSender
+  if (emailSettings?.smtp_host && emailSettings.smtp_user && emailSettings.smtp_password) {
+    const fromName = emailSettings.from_name?.trim()
+    const fromEmail = emailSettings.from_email?.trim() || emailSettings.smtp_user
+    sender = {
+      transporter: nodemailer.createTransport({
+        host: emailSettings.smtp_host,
+        port: emailSettings.smtp_port ?? 587,
+        secure: Boolean(emailSettings.smtp_secure),
+        auth: {
+          user: emailSettings.smtp_user,
+          pass: emailSettings.smtp_password,
+        },
+      }),
+      from: fromName ? `${fromName} <${fromEmail}>` : fromEmail,
+    }
+  }
+
+  senderCache.set(userId, sender)
+  return sender
+}
 
 // Two invoices can legitimately share the same Payment Link (same product,
 // different clients), so the link a client actually receives is tagged with
@@ -302,9 +347,16 @@ function buildReminderEmailHtml(subject: string, body: string, paymentBlock: str
 </body>`
 }
 
-async function sendEmail(to: string, subject: string, body: string, paymentBlock: string, highlights: string[] = []) {
-  await transporter.sendMail({
-    from: FROM_EMAIL,
+async function sendEmail(
+  sender: Sender,
+  to: string,
+  subject: string,
+  body: string,
+  paymentBlock: string,
+  highlights: string[] = []
+) {
+  await sender.transporter.sendMail({
+    from: sender.from,
     to,
     subject,
     text: body,
@@ -416,7 +468,8 @@ async function processInvoice(invoice: any, force: boolean) {
     }),
   }
   const paymentBlock = buildPaymentBlockHtml(autoBlockSettings, vars.payment_link)
-  await sendEmail(client.email, subject, body, paymentBlock, [vars.amount_due, vars.amount, vars.due_date])
+  const sender = await getSenderForUser(invoice.user_id)
+  await sendEmail(sender, client.email, subject, body, paymentBlock, [vars.amount_due, vars.amount, vars.due_date])
 
   await supabaseAdmin.from('reminder_log').insert({
     invoice_id: invoice.id,

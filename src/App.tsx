@@ -16,6 +16,7 @@ import { Clients } from './pages/Clients'
 import { ReminderSettings } from './pages/ReminderSettings'
 import { Billing } from './pages/Billing'
 import { PaymentSettings } from './pages/PaymentSettings'
+import { EmailSettings } from './pages/EmailSettings'
 
 export default function App() {
   return (
@@ -90,6 +91,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <PaymentSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/email-settings"
+              element={
+                <ProtectedRoute>
+                  <EmailSettings />
                 </ProtectedRoute>
               }
             />

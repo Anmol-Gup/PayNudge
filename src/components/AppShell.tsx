@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   Receipt,
+  Mail,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { getClientFullName, initials } from '../lib/format'
@@ -25,6 +26,7 @@ const NAV_LINKS = [
 
 const SECONDARY_LINKS = [
   { to: '/payment-settings', label: 'Payment', icon: Landmark },
+  { to: '/email-settings', label: 'Email', icon: Mail },
   { to: '/billing', label: 'Billing', icon: CreditCard },
 ]
 

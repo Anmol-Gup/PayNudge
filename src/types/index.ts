@@ -96,3 +96,17 @@ export interface PaymentSettings {
   created_at: string
   updated_at: string
 }
+
+export interface EmailSettings {
+  id: string
+  user_id: string
+  smtp_host: string | null
+  smtp_port: number
+  smtp_secure: boolean
+  smtp_user: string | null
+  smtp_password: string | null
+  from_email: string | null
+  from_name: string | null
+  created_at: string
+  updated_at: string
+}
